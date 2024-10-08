@@ -3,7 +3,7 @@ services:
     image: localhost/tuw-autojoin
     container_name: tuw-autojoin
     build: .
-    restart: unless-stopped
+    restart: on-failure
     env_file: .env
     environment:
       LOGIN_USERNAME: '${LOGIN_USERNAME}'
