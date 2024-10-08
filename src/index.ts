@@ -8,9 +8,7 @@ import { delay } from './ts/delay';
 const LOGIN_URL = 'https://tiss.tuwien.ac.at/admin/authentifizierung';
 
 async function main() {
-  const browser = await puppeteer.launch({
-    headless: false,
-  });
+  const browser = await puppeteer.launch();
 
   await login(browser);
 
