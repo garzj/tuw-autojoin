@@ -24,6 +24,5 @@ RUN yarn install --frozen-lockfile --prod
 # Built files
 COPY --from=builder /app/build/ ./build/
 
-# Start the server
-EXPOSE 3000
+# Start the program
 CMD [ "yarn", "start" ]
