@@ -1,0 +1,13 @@
+# Data
+/data/
+
+# Build
+build/
+
+# Deps
+node_modules/
+.pnp
+.pnp.js
+
+# IDEs
+.idea/

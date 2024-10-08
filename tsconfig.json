@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "outDir": "./build",
+    "module": "ES2022",
+    "moduleResolution": "node",
+    "target": "ES2022",
+    "lib": ["es6", "dom"],
+    "types": ["node"],
+    "typeRoots": ["node_modules/@types"],
+    "resolveJsonModule": true,
+    "noImplicitAny": true,
+    "strict": true
+  },
+  "tsc-alias": {
+    "resolveFullPaths": true
+  },
+  "exclude": ["./node_modules", "./build"],
+  "include": ["./src/**/*.ts", "./src/**/*.d.ts"]
+}
