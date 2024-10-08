@@ -1,5 +1,5 @@
 # BUILDER
-FROM node:lts-alpine3.19 AS builder
+FROM node:latest AS builder
 
 WORKDIR /app/
 
@@ -13,7 +13,7 @@ RUN yarn build
 
 
 # PROD ENV
-FROM node:lts-alpine3.19 AS runner
+FROM ghcr.io/puppeteer/puppeteer:latest AS runner
 
 WORKDIR /app/
 

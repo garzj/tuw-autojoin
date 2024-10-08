@@ -5,6 +5,8 @@ services:
     build: .
     restart: on-failure
     env_file: .env
+    cap_add:
+      - SYS_ADMIN
     environment:
       LOGIN_USERNAME: '${LOGIN_USERNAME}'
       LOGIN_PASSWORD: '${LOGIN_PASSWORD}'
