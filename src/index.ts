@@ -122,10 +122,10 @@ async function signupForGroup(page: Page, wrapper: ElementHandle<Element>) {
 async function signup(browser: Browser) {
   const page = await browser.newPage();
   try {
-    await page.goto(env.URL);
+    await page.goto(env.SIGNUP_URL);
     await page.waitForSelector('.groupWrapper');
 
-    const groupTexts = env.TRY_GROUPS.split(',');
+    const groupTexts = env.SIGNUP_TRY_GROUPS.split(',');
     for (const groupText of groupTexts) {
       try {
         console.log(`Trying group: ${groupText}`);
