@@ -158,22 +158,27 @@ async function signup(browser: Browser) {
   }
 }
 
+type RetryResult<T> = { success: true; data: T } | { success: false };
+
 async function retryInterval<F extends (...args: any[]) => Promise<any>>(
   f: F,
   timeout: number,
   max: number,
-): Promise<Awaited<ReturnType<F>>> {
+): Promise<RetryResult<Awaited<ReturnType<F>>>> {
   let tried = 0;
   while (true) {
     try {
-      return await f();
+      return {
+        success: true,
+        data: await f(),
+      };
     } catch (error) {
       tried++;
 
       console.error('Function failed:', error);
       if (tried >= max) {
         console.error(`Max retries reached. (${tried}/${max})`);
-        throw 'THIS IS BAD';
+        return { success: false };
       } else {
         console.error(`Will retry in ${timeout}ms. (${tried}/${max})`);
         await delay(timeout);
