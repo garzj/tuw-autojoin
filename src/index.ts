@@ -1,7 +1,7 @@
 import { env } from './config/env';
 console.log(`Starting app in ${env.NODE_ENV} mode.`);
 
-import { RecurrenceRule, scheduleJob } from 'node-schedule';
+import { CronJob } from 'cron';
 import puppeteer, { Browser, ElementHandle, Page } from 'puppeteer';
 import { delay } from './ts/delay';
 
@@ -12,44 +12,36 @@ async function main() {
 
   await login(browser);
 
-  const preloginRule = new RecurrenceRule(
-    env.PRELOGIN_YEAR,
-    env.PRELOGIN_MONTH ? env.PRELOGIN_MONTH - 1 : undefined,
-    env.PRELOGIN_DATE,
-    undefined,
-    env.PRELOGIN_HOUR,
-    env.PRELOGIN_MINUTE,
-    env.PRELOGIN_SECOND,
+  new CronJob(
+    env.PRELOGIN_CRON,
+    async () => {
+      console.log('Starting pre login.');
+      await retryInterval(
+        () => login(browser),
+        env.PRELOGIN_RETRY_INTERVAL,
+        env.PRELOGIN_RETRY_MAX,
+      );
+    },
+    null,
+    true,
     env.PRELOGIN_TZ,
   );
-  scheduleJob(preloginRule, async () => {
-    console.log('Starting pre login.');
-    await retryInterval(
-      () => login(browser),
-      env.PRELOGIN_RETRY_INTERVAL,
-      env.PRELOGIN_RETRY_MAX,
-    );
-  });
   console.log(`Prelogin scheduled.`);
 
-  const signupRule = new RecurrenceRule(
-    env.SIGNUP_YEAR,
-    env.SIGNUP_MONTH - 1,
-    env.SIGNUP_DATE,
-    undefined,
-    env.SIGNUP_HOUR,
-    env.SIGNUP_MINUTE,
-    env.SIGNUP_SECOND,
+  new CronJob(
+    env.SIGNUP_CRON,
+    async () => {
+      console.log('Starting signup.');
+      await retryInterval(
+        () => signup(browser),
+        env.SIGNUP_RETRY_INTERVAL,
+        env.SIGNUP_RETRY_MAX,
+      );
+    },
+    null,
+    true,
     env.SIGNUP_TZ,
   );
-  scheduleJob(signupRule, async () => {
-    console.log('Starting signup.');
-    await retryInterval(
-      () => signup(browser),
-      env.SIGNUP_RETRY_INTERVAL,
-      env.SIGNUP_RETRY_MAX,
-    );
-  });
   console.log(`Signup scheduled.`);
 
   process.on('beforeExit', () => browser.close());
