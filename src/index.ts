@@ -18,6 +18,7 @@ async function main() {
     env.PRELOGIN_HOUR,
     env.PRELOGIN_MINUTE,
     env.PRELOGIN_SECOND,
+    env.PRELOGIN_TZ,
   );
   scheduleJob(preloginRule, async () => {
     await retryInterval(
@@ -36,6 +37,7 @@ async function main() {
     env.SIGNUP_HOUR,
     env.SIGNUP_MINUTE,
     env.SIGNUP_SECOND,
+    env.SIGNUP_TZ,
   );
   scheduleJob(signupRule, async () => {
     await retryInterval(
