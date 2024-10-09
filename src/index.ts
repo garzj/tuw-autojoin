@@ -10,6 +10,8 @@ const LOGIN_URL = 'https://tiss.tuwien.ac.at/admin/authentifizierung';
 async function main() {
   const browser = await puppeteer.launch();
 
+  await login(browser);
+
   const preloginRule = new RecurrenceRule(
     env.PRELOGIN_YEAR,
     env.PRELOGIN_MONTH ? env.PRELOGIN_MONTH - 1 : undefined,
@@ -21,6 +23,7 @@ async function main() {
     env.PRELOGIN_TZ,
   );
   scheduleJob(preloginRule, async () => {
+    console.log('Starting pre login.');
     await retryInterval(
       () => login(browser),
       env.PRELOGIN_RETRY_INTERVAL,
@@ -40,6 +43,7 @@ async function main() {
     env.SIGNUP_TZ,
   );
   scheduleJob(signupRule, async () => {
+    console.log('Starting signup.');
     await retryInterval(
       () => signup(browser),
       env.SIGNUP_RETRY_INTERVAL,
