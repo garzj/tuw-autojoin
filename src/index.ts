@@ -9,8 +9,16 @@ const LOGIN_URL = 'https://tiss.tuwien.ac.at/admin/authentifizierung';
 
 async function main() {
   const browser = await puppeteer.launch();
+  process.on('beforeExit', () => browser.close());
 
   await login(browser);
+
+  if (env.DRY_RUN) {
+    console.log('Starting dry run.');
+    console.log('Testing signup.');
+    signup(browser, true);
+    return;
+  }
 
   new CronJob(
     env.PRELOGIN_CRON,
@@ -43,8 +51,6 @@ async function main() {
     env.SIGNUP_TZ,
   );
   console.log(`Signup scheduled.`);
-
-  process.on('beforeExit', () => browser.close());
 }
 
 async function login(browser: Browser) {
@@ -86,7 +92,11 @@ async function login(browser: Browser) {
   }
 }
 
-async function signupForGroup(page: Page, wrapper: ElementHandle<Element>) {
+async function signupForGroup(
+  page: Page,
+  wrapper: ElementHandle<Element>,
+  dryRun = false,
+) {
   const peopleCount = await wrapper.$eval('.rightLink', (el) => el.textContent);
   if (peopleCount) {
     const spl = peopleCount.split('/');
@@ -95,6 +105,11 @@ async function signupForGroup(page: Page, wrapper: ElementHandle<Element>) {
     if (joined >= max) {
       throw `ALREADY FULL (${joined}/${max})`;
     }
+  }
+
+  if (dryRun) {
+    console.log('Would have tried to submit now.');
+    return;
   }
 
   const registerSelector = 'input[value="Anmelden"], input[value="Register"]';
@@ -119,7 +134,7 @@ async function signupForGroup(page: Page, wrapper: ElementHandle<Element>) {
   await page.waitForSelector('#confirmForm');
 }
 
-async function signup(browser: Browser) {
+async function signup(browser: Browser, dryRun = false) {
   const page = await browser.newPage();
   try {
     await page.goto(env.SIGNUP_URL);
@@ -141,8 +156,12 @@ async function signup(browser: Browser) {
           throw 'No group wrapper !!1! :/';
         }
 
-        await signupForGroup(page, wrapper);
-        console.log('SEEMS LIKE IT WORKED');
+        await signupForGroup(page, wrapper, dryRun);
+        if (dryRun) {
+          console.log('Dry run worked.');
+        } else {
+          console.log('SEEMS LIKE IT WORKED');
+        }
         return;
       } catch (error) {
         console.error(

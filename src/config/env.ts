@@ -20,6 +20,7 @@ const envSchema = z.object({
   SIGNUP_TZ: z.string(),
   SIGNUP_RETRY_INTERVAL: z.coerce.number(),
   SIGNUP_RETRY_MAX: z.coerce.number(),
+  DRY_RUN: z.coerce.boolean().default(false),
 });
 export type Env = z.infer<typeof envSchema>;
 
