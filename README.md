@@ -4,7 +4,7 @@ A script, that joins courses on TISS (TU Vienna).
 
 ## Don't rely on this
 
-I quickly wrote this, because [this script](mangei/tissquickregistrationscript) does not run on a server (ok, maybe it could, but I didn't try).
+I quickly wrote this, because [this script](https://github.com/mangei/tissquickregistrationscript) does not run on a server (ok, maybe it could, but I didn't try).
 
 For me my script worked, but there are surely cases where it does not.
 
