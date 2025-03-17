@@ -14,6 +14,7 @@ const envSchema = z.object({
   PRELOGIN_TZ: z.string(),
   PRELOGIN_RETRY_INTERVAL: z.coerce.number(),
   PRELOGIN_RETRY_MAX: z.coerce.number(),
+  LOCALE: z.union([z.literal('en'), z.literal('de')]),
   SIGNUP_URL: z.string().url(),
   SIGNUP_TRY_GROUPS: z.string(),
   SIGNUP_CRON: z.string(),

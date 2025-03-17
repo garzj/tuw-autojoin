@@ -7,6 +7,12 @@ import { delay } from './ts/delay';
 
 const LOGIN_URL = 'https://tiss.tuwien.ac.at/admin/authentifizierung';
 
+function appendLocaleToUrl(url: string): string {
+  const u = new URL(url);
+  u.searchParams.append('locale', env.LOCALE);
+  return u.toString();
+}
+
 async function main() {
   const browser = await puppeteer.launch();
   process.on('beforeExit', () => browser.close());
@@ -64,7 +70,7 @@ async function main() {
 async function login(browser: Browser) {
   const page = await browser.newPage();
   try {
-    await page.goto(LOGIN_URL);
+    await page.goto(appendLocaleToUrl(LOGIN_URL));
 
     await page.waitForSelector('#lehreLink, #samlloginbutton');
 
@@ -145,7 +151,7 @@ async function signupForGroup(
 async function signup(browser: Browser, dryRun = false) {
   const page = await browser.newPage();
   try {
-    await page.goto(env.SIGNUP_URL);
+    await page.goto(appendLocaleToUrl(env.SIGNUP_URL));
     await page.waitForSelector('.groupWrapper');
 
     const wrappers = await page.$$('.groupWrapper');
