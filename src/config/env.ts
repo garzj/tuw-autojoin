@@ -1,5 +1,9 @@
 import * as z from 'zod';
 
+const boolSchema = z.custom((b) =>
+  typeof b === 'boolean' ? b : typeof b === 'string' ? b === 'true' : !!b,
+);
+
 const envSchema = z.object({
   NODE_ENV: z
     .union([
@@ -17,11 +21,12 @@ const envSchema = z.object({
   LOCALE: z.union([z.literal('en'), z.literal('de')]),
   SIGNUP_URL: z.string().url(),
   SIGNUP_TRY_GROUPS: z.string(),
+  SIGNUP_DEFAULT_TO_FIRST_GROUP: boolSchema.default(false),
   SIGNUP_CRON: z.string(),
   SIGNUP_TZ: z.string(),
   SIGNUP_RETRY_INTERVAL: z.coerce.number(),
   SIGNUP_RETRY_MAX: z.coerce.number(),
-  DRY_RUN: z.coerce.boolean().default(false),
+  DRY_RUN: boolSchema.default(false),
 });
 export type Env = z.infer<typeof envSchema>;
 

@@ -157,57 +157,63 @@ async function signup(browser: Browser, dryRun = false) {
     const wrappers = await page.$$('.groupWrapper');
     if (wrappers.length == 0) {
       throw "No group wrappers were found! That's bad!";
-    } else if (wrappers.length == 1) {
-      console.log('Only one group wrapper found, ignoring group names.');
+    }
 
-      await signupForGroup(page, wrappers[0], dryRun);
-    } else {
-      console.log('Multiple group wrappers found, will try matching groups.');
+    console.log('Trying groups.');
 
-      const headerNames = await Promise.all(
-        wrappers.map((wrapper) =>
-          wrapper.evaluate(
-            (w) => w.querySelector('.header_element')?.textContent,
-          ),
+    const headerNames = await Promise.all(
+      wrappers.map((wrapper) =>
+        wrapper.evaluate(
+          (w) => w.querySelector('.header_element')?.textContent,
         ),
-      );
+      ),
+    );
 
-      const groupTexts = env.SIGNUP_TRY_GROUPS.split(',');
-      let groupWorked = false;
-      for (let i = 0; !groupWorked && i < groupTexts.length; i++) {
-        const groupText = groupTexts[i];
-        try {
-          console.log(`Trying group: ${groupText}`);
-
-          const wrapperIdx = headerNames.findIndex(
-            (h) => typeof h === 'string' && h.includes(groupText),
-          );
-          if (wrapperIdx === -1) {
-            throw 'No group wrapper !!1! :/';
-          }
-          const wrapper = wrappers[wrapperIdx];
-          if (!wrapper || !wrapper.$) {
-            throw "Group wrapper didn't have a selector fn??";
-          }
-
-          await signupForGroup(page, wrapper, dryRun);
-          groupWorked = true;
-        } catch (error) {
-          console.error(
-            `Group signup for text ${groupText} failed with error:`,
-            error,
-          );
-          continue;
-        }
+    const groupTexts = env.SIGNUP_TRY_GROUPS.split(',');
+    let groupWorked = false;
+    for (let i = 0; !groupWorked && i < groupTexts.length; i++) {
+      const groupText = groupTexts[i];
+      if (groupText === '') {
+        console.error('Skipping empty group name.');
+        continue;
       }
 
-      if (!groupWorked) {
-        throw `No suitable group found. Tried ${groupTexts.length}.`;
+      try {
+        console.log(`Trying group: ${groupText}`);
+
+        const wrapperIdx = headerNames.findIndex(
+          (h) => typeof h === 'string' && h.includes(groupText),
+        );
+        if (wrapperIdx === -1) {
+          throw 'No group wrapper !!1! :/';
+        }
+        const wrapper = wrappers[wrapperIdx];
+        if (!wrapper || !wrapper.$) {
+          throw "Group wrapper didn't have a selector fn??";
+        }
+
+        await signupForGroup(page, wrapper, dryRun);
+        groupWorked = true;
+      } catch (e) {
+        console.error(`Group signup for text ${groupText} failed:`, e);
+        continue;
+      }
+    }
+
+    if (!groupWorked) {
+      const errMsg = `No suitable group found. Tried ${groupTexts.length}.`;
+
+      if (env.SIGNUP_DEFAULT_TO_FIRST_GROUP) {
+        console.error(errMsg);
+        console.log(`Defaulting to the first group: ${headerNames[0]}`);
+        await signupForGroup(page, wrappers[0], dryRun);
+      } else {
+        throw errMsg;
       }
     }
 
     if (dryRun) {
-      console.log('Dry run worked.');
+      console.log('Dry run successful!');
     } else {
       console.log('SEEMS LIKE IT WORKED');
     }
