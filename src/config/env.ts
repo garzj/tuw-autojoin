@@ -1,8 +1,10 @@
 import * as z from 'zod';
 
-const boolSchema = z.custom((b) =>
-  typeof b === 'boolean' ? b : typeof b === 'string' ? b === 'true' : !!b,
-);
+const boolSchema = z
+  .union([z.string(), z.boolean()])
+  .transform((b) =>
+    typeof b === 'boolean' ? b : typeof b === 'string' ? b === 'true' : !!b,
+  );
 
 const envSchema = z.object({
   NODE_ENV: z
