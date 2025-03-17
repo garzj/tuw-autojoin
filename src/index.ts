@@ -16,19 +16,23 @@ async function main() {
   if (env.DRY_RUN) {
     console.log('Starting dry run.');
     console.log('Testing signup.');
-    signup(browser, true);
+    await signup(browser, true);
     return;
   }
 
   new CronJob(
     env.PRELOGIN_CRON,
     async () => {
-      console.log('Starting pre login.');
-      await retryInterval(
-        () => login(browser),
-        env.PRELOGIN_RETRY_INTERVAL,
-        env.PRELOGIN_RETRY_MAX,
-      );
+      try {
+        console.log('Starting pre login.');
+        await retryInterval(
+          () => login(browser),
+          env.PRELOGIN_RETRY_INTERVAL,
+          env.PRELOGIN_RETRY_MAX,
+        );
+      } catch (e) {
+        console.error('Pre login failed:', e);
+      }
     },
     null,
     true,
@@ -39,12 +43,16 @@ async function main() {
   new CronJob(
     env.SIGNUP_CRON,
     async () => {
-      console.log('Starting signup.');
-      await retryInterval(
-        () => signup(browser),
-        env.SIGNUP_RETRY_INTERVAL,
-        env.SIGNUP_RETRY_MAX,
-      );
+      try {
+        console.log('Starting signup.');
+        await retryInterval(
+          () => signup(browser),
+          env.SIGNUP_RETRY_INTERVAL,
+          env.SIGNUP_RETRY_MAX,
+        );
+      } catch (e) {
+        console.error('Signup failed:', e);
+      }
     },
     null,
     true,
@@ -206,4 +214,9 @@ async function retryInterval<F extends (...args: any[]) => Promise<any>>(
   }
 }
 
-await main();
+try {
+  await main();
+} catch (e) {
+  console.error(`An error occured:`, e);
+  process.exit(1);
+}
